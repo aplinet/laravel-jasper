@@ -1,25 +1,29 @@
 {
-    "name": "cossou/jasperphp",
-    "description": "Create Reports in PHP with JasperReports",
-    "license": "MIT",
-    "keywords": [
-        "reports",
-        "jasper",
-        "jasperreports",
-        "reports",
-        "pdf",
-        "java"
-      ],
-    "homepage": "https://github.com/cossou/JasperPHP",
-    "authors": [
-        {
-            "name": "Hélder Duarte",
-            "email": "cossou@gmail.com"
-        }
-    ],
-    "autoload": {
-        "psr-0": {
-            "JasperPHP": "src/"
-        }
+  "name": "aplinet/laravel-jasper ",
+  "description": "JasperReports for lumen/laravel (PHP)",
+  "license": "MIT",
+  "keywords": [
+    "reports",
+    "jasper",
+    "jasperreports",
+    "reports",
+    "pdf",
+    "java"
+  ],
+  "homepage": "https://github.com/aplinet/laravel-jasper",
+  "authors": [
+    {
+      "name": "Hélder Duarte",
+      "email": "cossou@gmail.com"
+    },
+    {
+      "name": "Konrad Frysiak",
+      "email": "konrad.frysiak@gmail.com"
     }
+  ],
+  "autoload": {
+    "psr-0": {
+      "JasperPHP": "src/"
+    }
+  }
 }
