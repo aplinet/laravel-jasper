@@ -1,6 +1,7 @@
 {
   "name": "aplinet/laravel-jasper ",
   "description": "JasperReports for lumen/laravel (PHP)",
+  "type": "library",
   "license": "MIT",
   "keywords": [
     "reports",
