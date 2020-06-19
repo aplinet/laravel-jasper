@@ -18,14 +18,14 @@ class JasperPHPServiceProvider extends ServiceProvider
         $this->app->singleton('jasperphp', function ($app) {
             return new JasperPHP;
         });
+    }
 
-
-        /**
-         * Register the alias.
-         */
-        $this->app->booting(function () {
-            $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-            $loader->alias('JasperPHP', 'JasperPHP\Facades\JasperPHP');
-        });
+    /**
+     * Boot the authentication services for the application.
+     *
+     * @return void
+     */
+    public function boot()
+    {
     }
 }

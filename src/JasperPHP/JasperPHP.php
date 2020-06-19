@@ -11,8 +11,14 @@ class JasperPHP
     protected $formats = array('pdf', 'rtf', 'xls', 'xlsx', 'docx', 'odt', 'ods', 'pptx', 'csv', 'html', 'xhtml', 'xml', 'jrprint');
     protected $resource_directory; // Path to report resource dir or jar file
 
-    function __construct($resource_dir = false)
+    function __construct($resource_dir = false,$executable_path = null)
     {
+        if ($executable_path){
+            $this->executable = $executable_path;
+        }
+        if (!file_exists($this->executable) && !is_executable($this->executable)){
+            throw new \Exception("JasperStarter executable not found, or is not executable (check permissions)", 1);
+        }
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
            $this->windows = true;
 
