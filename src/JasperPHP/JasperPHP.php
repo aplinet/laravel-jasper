@@ -49,7 +49,7 @@ class JasperPHP
         if (is_null($input_file) || empty($input_file))
             throw new \Exception("No input file", 1);
 
-        $command = __DIR__ . $this->executable;
+        $command =  $this->executable;
 
         $command .= " compile ";
 
@@ -80,7 +80,7 @@ class JasperPHP
                 throw new \Exception("Invalid format!", 1);
         }
 
-        $command = __DIR__ . $this->executable;
+        $command = $this->executable;
 
         $command .= " process ";
 
@@ -156,7 +156,7 @@ class JasperPHP
         if (is_null($input_file) || empty($input_file))
             throw new \Exception("No input file", 1);
 
-        $command = __DIR__ . $this->executable;
+        $command = $this->executable;
 
         $command .= " list_parameters ";
 
