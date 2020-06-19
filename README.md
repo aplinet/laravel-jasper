@@ -1,5 +1,8 @@
 # JasperReports for PHP
 
+This is a fork of [cossou/JasperPHP](https://github.com/cossou/JasperPHP) with updated JasperStarter for jdk 11, integrated with recent versions of laravel/lumen.
+
+
 Package to generate reports with [JasperReports 6](http://community.jaspersoft.com/project/jasperreports-library) library through [JasperStarter v3](http://jasperstarter.sourceforge.net/) command-line tool.
 
 ## Install
