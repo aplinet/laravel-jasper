@@ -4,6 +4,8 @@ namespace JasperPHP;
 
 use JasperPHP\Exceptions\JasperCompileException;
 use JasperPHP\Exceptions\JasperProcessException;
+use JasperPHP\Exceptions\JasperPermissionException;
+use JasperPHP\Exceptions\JasperReportNotFoundException;
 
 class JasperPHP
 {
@@ -93,7 +95,6 @@ class JasperPHP
             throw new JasperProcessException("Could not process report ($reportName): " . json_encode($processResult, true), 1);
         }
         return $this;
-
     }
     /**
      * Compile report and related subreports in a directory.
@@ -110,14 +111,13 @@ class JasperPHP
         $test = $this->resource_directory;
         $reportDir = $this->resource_directory . '/' . $reportName;
         if (!is_dir($reportDir)) {
-            return 'report dir does not exist'; //TODO: exception
+            throw new JasperReportNotFoundException("Report directory does not exist: '" . $reportDir . "'", 1);
         }
         if (!is_writable($reportDir)) {
-            return 'report dir is not writable'; //TODO: exception
+            throw new JasperPermissionException("Report directory is not writable: '" . $reportDir . "'", 1);
         }
         if (!file_exists($reportDir . "/index.jrxml")) {
-            // index not found exception
-            // throw new JasperReportNotFoundException("Could not find or access report: '" . resource_path("reports/${reportName}/index.jrxml") . "'", 1);
+            throw new JasperReportNotFoundException("Report index file does not exist: '" . $reportDir . "/index.jrxml" . "'", 1);
         }
 
         $reportFilenames = glob($reportDir . '/*.{jrxml}', GLOB_BRACE);
@@ -132,7 +132,7 @@ class JasperPHP
                 if (is_writable($jasperFilename)) {
                     unlink($jasperFilename);
                 } else {
-                    // could not remove compiled files, check permissions
+                    throw new JasperPermissionException("could not remove compiled file, check permissions: '" . $jasperFilename . "'", 1);
                 }
             }
             // Replace jrxml links to jasper
