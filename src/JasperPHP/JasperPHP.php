@@ -2,6 +2,9 @@
 
 namespace JasperPHP;
 
+use JasperPHP\Exceptions\JasperCompileException;
+use JasperPHP\Exceptions\JasperProcessException;
+
 class JasperPHP
 {
     protected $executable = null;
@@ -12,38 +15,140 @@ class JasperPHP
     protected $formats = array('pdf', 'rtf', 'xls', 'xlsx', 'docx', 'odt', 'ods', 'pptx', 'csv', 'html', 'xhtml', 'xml', 'jrprint');
     protected $resource_directory; // Path to report resource dir or jar file
 
-    function __construct($resource_dir = false, $executable_path = null)
+    function __construct()
     {
-        if ($executable_path) {
-            $this->executable = $executable_path;
-        } else {
-            $this->executable = realpath(__DIR__ . "/../JasperStarter/bin/jasperstarter");
-        }
+        $this->executable = config('jasper.executable_path') ? config('jasper.executable_path') : realpath(__DIR__ . "/../JasperStarter/bin/jasperstarter");
         if (!file_exists($this->executable) && !is_executable($this->executable)) {
             throw new \Exception("JasperStarter executable not found, or is not executable (check permissions)", 1);
         }
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $this->windows = true;
+        }
 
-        if (!$resource_dir) {
+        $resourceDir = config('jasper.resource_dir');
+        if (!$resourceDir) {
             $this->resource_directory = __DIR__ . "/../../../../../";
         } else {
-            if (!file_exists($resource_dir))
+            if (!file_exists($resourceDir)) {
                 throw new \Exception("Invalid resource directory", 1);
-
-            $this->resource_directory = $resource_dir;
+            }
+            $this->resource_directory = $resourceDir;
         }
     }
 
-    public static function __callStatic($method, $parameters)
-    {
-        // Create a new instance of the called class, in this case it is Post
-        $model = get_called_class();
 
-        // Call the requested method on the newly created object
-        return call_user_func_array(array(new $model, $method), $parameters);
+    /**
+     * Replace subreport links in file 
+     * 
+     * Jasper starter uses .jasper connections to subreports, while Jasper Studio saves .jrxml connections
+     * Warning ! This should be rewritten to use streams..
+     * 
+     * @param string $filePath Full path to a file
+     * @param string[] $subreportNames Array of subreport names to replace
+     * @return void
+     */
+    public function replaceSubreportLinks($filePath, $subreportNames)
+    {
+
+        $fileContents = file_get_contents($filePath);
+        foreach ($subreportNames as $subreportName) {
+            $fileContents = str_replace($subreportName . '.jrxml', $subreportName . '.jasper', $fileContents);
+        }
+
+        file_put_contents(
+            $filePath,
+            $fileContents
+        );
     }
 
+    /**
+     * Compile report and related subreports in a directory.
+     * 
+     * Main report has to be named index.jrxml
+     *
+     * @param string $reportName Report directory name relative specified resource dir (check config)
+     * @param string $outputFile Output file(s) path, defaults to report dir
+     * @param boolean $background
+     * @param string[] $formats Array of output file formats - default ["pdf"]
+     * @param boolean $redirect_output
+     * @return void
+     */
+    public function processReport($reportName, $outputFile = false, $formats = array("pdf"), $parameters = array(), $db_connection = array(), $background = true, $redirect_output = true)
+    {
+        $reportDir = $this->resource_directory . '/' . $reportName;
+        $resourceDir = $reportDir;
+
+        $processResult = $this->process(
+            $reportDir . '/index.jasper',
+            $outputFile,
+            $formats,
+            $parameters,
+            $db_connection,
+            $background,
+            $redirect_output,
+            $resourceDir
+        )->execute();
+
+        if (count($processResult)) {
+            throw new JasperProcessException("Could not process report ($reportName): " . json_encode($processResult, true), 1);
+        }
+        return $this;
+
+    }
+    /**
+     * Compile report and related subreports in a directory.
+     * 
+     * Main report has to be named index.jrxml
+     *
+     * @param string $reportName Report directory name relative specified resource dir (check config)
+     * @param boolean $background
+     * @param boolean $redirect_output
+     * @return void
+     */
+    public function compileReport($reportName, $background = true, $redirect_output = true)
+    {
+        $test = $this->resource_directory;
+        $reportDir = $this->resource_directory . '/' . $reportName;
+        if (!is_dir($reportDir)) {
+            return 'report dir does not exist'; //TODO: exception
+        }
+        if (!is_writable($reportDir)) {
+            return 'report dir is not writable'; //TODO: exception
+        }
+        if (!file_exists($reportDir . "/index.jrxml")) {
+            // index not found exception
+            // throw new JasperReportNotFoundException("Could not find or access report: '" . resource_path("reports/${reportName}/index.jrxml") . "'", 1);
+        }
+
+        $reportFilenames = glob($reportDir . '/*.{jrxml}', GLOB_BRACE);
+
+        foreach ($reportFilenames as $reportFilename) {
+            $pathParts = pathinfo($reportFilename);
+            $baseFilename = $pathParts['dirname'] . '/' . $pathParts['filename'];
+            $jasperFilename = $baseFilename . '.jasper';
+
+            // Remove compiled files
+            if (file_exists($reportFilename)) {
+                if (is_writable($jasperFilename)) {
+                    unlink($jasperFilename);
+                } else {
+                    // could not remove compiled files, check permissions
+                }
+            }
+            // Replace jrxml links to jasper
+            $this->replaceSubreportLinks($reportFilename, array_map(function ($reportFilename) {
+                return pathinfo($reportFilename, PATHINFO_FILENAME);
+            }, $reportFilenames));
+
+            // Compile
+
+            $compilationResult = $this->compile($reportFilename, $baseFilename)->execute();
+            if (count($compilationResult)) {
+                throw new JasperCompileException("Jasper compilation error: " . json_encode($compilationResult, true), 1);
+            }
+        }
+        return $this;
+    }
     public function compile($input_file, $output_file = false, $background = true, $redirect_output = true)
     {
         if (is_null($input_file) || empty($input_file))
@@ -65,7 +170,7 @@ class JasperPHP
         return $this;
     }
 
-    public function process($input_file, $output_file = false, $format = array("pdf"), $parameters = array(), $db_connection = array(), $background = true, $redirect_output = true)
+    public function process($input_file, $output_file = false, $format = array("pdf"), $parameters = array(), $db_connection = array(), $background = true, $redirect_output = true, $resource_dir = null)
     {
         if (is_null($input_file) || empty($input_file))
             throw new \Exception("No input file", 1);
@@ -95,7 +200,11 @@ class JasperPHP
             $command .= " -f " . $format;
 
         // Resources dir
-        $command .= " -r " . $this->resource_directory;
+        if ($resource_dir) {
+            $command .= " -r " . $resource_dir;
+        } else {
+            $command .= " -r " . $this->resource_directory;
+        }
 
         if (count($parameters) > 0) {
             $command .= " -P";

@@ -2,7 +2,7 @@
 
 This is a fork of [cossou/JasperPHP](https://github.com/cossou/JasperPHP), integrated with recent versions of laravel/lumen.
 
-----------
+---
 
 Package to generate reports with [JasperReports 6](http://community.jaspersoft.com/project/jasperreports-library) library through [JasperStarter v3](http://jasperstarter.sourceforge.net/) command-line tool.
 
@@ -17,9 +17,49 @@ composer require cossou/jasperphp
 ```php
 $app->register(JasperPHP\JasperPHPServiceProvider::class);
 ```
-with facades 
+
+with facades
+
 ```php
 $app->alias('JasperPHP', JasperPHP\Facades\JasperPHP::class);
+```
+
+create config file `jasper.php` in config directory
+
+```php
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Jasper starter executable path
+    |--------------------------------------------------------------------------
+    |
+    | Default to JasperStarter supplied with laravel-jasper
+    |
+    */
+
+    'executable_path' => env('JASPER_EXECUTABLE', null),
+    /*
+    |--------------------------------------------------------------------------
+    | Default resource directory
+    |--------------------------------------------------------------------------
+    |
+    | Defaults to projects resource directory.
+    | Note: resource path can be overriden per command basis (compile, process)
+    |
+    */
+
+    'resource_dir' => env('JASPER_RESOURCE_DIR', null),
+
+];
+```
+
+in lumen remember to bootstrap it in `app.php`
+
+```
+$app->configure('jasper');
 ```
 
 ## Introduction
@@ -30,7 +70,7 @@ This package aims to be a solution to compile and process JasperReports (.jrxml 
 
 Did you ever had to create a good looking Invoice with a lot of fields for your great web app?
 
-I had to, and the solutions out there were not perfect. Generating *HTML* + *CSS* to make a *PDF*? WTF? That doesn't make any sense! :)
+I had to, and the solutions out there were not perfect. Generating _HTML_ + _CSS_ to make a _PDF_? WTF? That doesn't make any sense! :)
 
 Then I found **JasperReports** the best open source solution for reporting.
 
@@ -44,15 +84,15 @@ Well, everything. JasperReports is a powerful tool for **reporting** and **BI**.
 
 I recommend using [Jaspersoft Studio](http://community.jaspersoft.com/project/jaspersoft-studio) to build your reports, connect it to your datasource (ex: MySQL), loop thru the results and output it to PDF, XLS, DOC, RTF, ODF, etc.
 
-*Some examples of what you can do:*
+_Some examples of what you can do:_
 
-* Invoices
-* Reports
-* Listings
+- Invoices
+- Reports
+- Listings
 
 ## Examples
 
-### The *Hello World* example.
+### The _Hello World_ example.
 
 Go to the examples directory in the root of the repository (`vendor/cossou/jasperphp/examples`).
 Open the `hello_world.jrxml` file with iReport or with your favorite text editor and take a look at the source code.
@@ -61,7 +101,7 @@ Open the `hello_world.jrxml` file with iReport or with your favorite text editor
 
 First we need to compile our `JRXML` file into a `JASPER` binary file. We just have to do this one time.
 
-**Note:** You don't need to do this step if you are using *Jaspersoft Studio*. You can compile directly within the program.
+**Note:** You don't need to do this step if you are using _Jaspersoft Studio_. You can compile directly within the program.
 
 ```php
 JasperPHP::compile(base_path('/vendor/cossou/jasperphp/examples/hello_world.jrxml'))->execute();
@@ -86,7 +126,7 @@ JasperPHP::process(
 
 Now check the examples folder! :) Great right? You now have 2 files, `hello_world.pdf` and `hello_world.rtf`.
 
-Check the *API* of the  `compile` and `process` functions in the file `src/JasperPHP/JasperPHP.php` file.
+Check the _API_ of the `compile` and `process` functions in the file `src/JasperPHP/JasperPHP.php` file.
 
 #### Listing Parameters
 
@@ -123,11 +163,10 @@ JasperPHP::process(
 
 ## Requirements
 
-* Java JDK 1.6
-* PHP [exec()](http://php.net/manual/function.exec.php) function
-* [optional] [Mysql Connector](http://dev.mysql.com/downloads/connector/j/) (if you want to use database)
-* [optional] [Jaspersoft Studio](http://community.jaspersoft.com/project/jaspersoft-studio) (to draw and compile your reports)
-
+- Java JDK 1.6
+- PHP [exec()](http://php.net/manual/function.exec.php) function
+- [optional][mysql connector](http://dev.mysql.com/downloads/connector/j/) (if you want to use database)
+- [optional][jaspersoft studio](http://community.jaspersoft.com/project/jaspersoft-studio) (to draw and compile your reports)
 
 ## Installation
 
@@ -144,11 +183,11 @@ Java HotSpot(TM) 64-Bit Server VM (build 20.51-b01-457, mixed mode)
 
 If you get:
 
-	command not found: java
+    command not found: java
 
 Then install it with: (Ubuntu/Debian)
 
-	$ sudo apt-get install default-jdk
+    $ sudo apt-get install default-jdk
 
 Now run the `java -version` again and check if the output is ok.
 
@@ -172,7 +211,7 @@ Or in your `composer.json` file add:
 
 And the just run:
 
-	composer update
+    composer update
 
 and thats it.
 
@@ -198,6 +237,7 @@ File `config/app.php`
 ```
 
 Uses in Controller by adding `use JasperPHP` after namespace
+
 ```php
 <?php
 namespace App\Http\Controllers;
@@ -209,14 +249,15 @@ class SomethingController
 	//...
 
     public function generateReport()
-    {        
+    {
         //jasper ready to call
         JasperPHP::compile(base_path('/vendor/cossou/jasperphp/examples/hello_world.jrxml'))->execute();
     }
-}    
+}
 ```
 
 Use in Route
+
 ```php
 use JasperPHP\JasperPHP as JasperPHP;
 
@@ -251,6 +292,7 @@ Add to your `app/config/app.php` providers array:
 ```php
 	'JasperPHP\JasperPHPServiceProvider',
 ```
+
 Now you will have the `JasperPHP` alias available.
 
 ### MySQL
@@ -275,45 +317,41 @@ array(
 )
 ```
 
-
 ### JSON
 
 Source file example:
 
 ```json
 {
-    "result":{
-        "id":26,
-        "reference":"0051711080021460005",
-        "account_id":1,
-        "user_id":2,
-        "date":"2017-11-08 00:21:46",
-        "type":"",
-        "gross":138,
-        "discount":0,
-        "tax":4.08,
-        "nett":142.08,
-        "details":[
-            {"id":26, "line": 1, "product_id": 26 },
-        ]
-    },
-    "options":{
-        "category":[
-            {"id":3,"name":"Hair care","service":0,"user_id":1, },
-        ],
-        "default":{
-            "id":1,"name":"I Like Hairdressing",
-            "description":null,
-            "address":null,
-            "website":"https:\/\/www.ilikehairdressing.com",
-            "contact_number":"+606 601 5889",
-            "country":"MY",
-            "timezone":"Asia\/Kuala_Lumpur",
-            "currency":"MYR",
-            "time_format":"24-hours",
-            "user_id":1
-        }
+  "result": {
+    "id": 26,
+    "reference": "0051711080021460005",
+    "account_id": 1,
+    "user_id": 2,
+    "date": "2017-11-08 00:21:46",
+    "type": "",
+    "gross": 138,
+    "discount": 0,
+    "tax": 4.08,
+    "nett": 142.08,
+    "details": [{ "id": 26, "line": 1, "product_id": 26 }]
+  },
+  "options": {
+    "category": [{ "id": 3, "name": "Hair care", "service": 0, "user_id": 1 }],
+    "default": {
+      "id": 1,
+      "name": "I Like Hairdressing",
+      "description": null,
+      "address": null,
+      "website": "https://www.ilikehairdressing.com",
+      "contact_number": "+606 601 5889",
+      "country": "MY",
+      "timezone": "Asia/Kuala_Lumpur",
+      "currency": "MYR",
+      "time_format": "24-hours",
+      "user_id": 1
     }
+  }
 }
 ```
 
@@ -329,7 +367,7 @@ Using Laravel:
                     $output,
                     array("pdf"),
                     array("msg"=>"Tax Invoice"),
-                    array("driver"=>"json", "json_query" => "data", "data_file" =>  $datafile)  
+                    array("driver"=>"json", "json_query" => "data", "data_file" =>  $datafile)
                 )->execute();
      }
 ```
@@ -348,7 +386,7 @@ Some hack to JasperReport datasource is required. You need to indicate datasourc
 
 Depends on the complexity, amount of data and the resources of your machine (let me know your use case).
 
-I have a report that generates a *Invoice* with a DB connection, images and multiple pages and it takes about **3/4 seconds** to process. I suggest that you use a worker to generate the reports in the background.
+I have a report that generates a _Invoice_ with a DB connection, images and multiple pages and it takes about **3/4 seconds** to process. I suggest that you use a worker to generate the reports in the background.
 
 ## Thanks
 
