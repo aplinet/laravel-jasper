@@ -1,6 +1,6 @@
 # JasperReports for PHP
 
-This is a fork of [cossou/JasperPHP](https://github.com/cossou/JasperPHP) with updated JasperStarter for jdk 11, integrated with recent versions of laravel/lumen.
+This is a fork of [cossou/JasperPHP](https://github.com/cossou/JasperPHP), integrated with recent versions of laravel/lumen.
 
 ----------
 
