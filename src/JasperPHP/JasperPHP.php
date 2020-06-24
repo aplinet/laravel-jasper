@@ -128,7 +128,7 @@ class JasperPHP
             $jasperFilename = $baseFilename . '.jasper';
 
             // Remove compiled files
-            if (file_exists($reportFilename)) {
+            if (file_exists($jasperFilename)) {
                 if (is_writable($jasperFilename)) {
                     unlink($jasperFilename);
                 } else {
