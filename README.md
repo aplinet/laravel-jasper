@@ -36,7 +36,7 @@ return [
     | Jasper starter executable path
     |--------------------------------------------------------------------------
     |
-    | Default to JasperStarter supplied with laravel-jasper
+    | Default to JasperStarter supplied with laravel-jasper 
     |
     */
 
@@ -52,8 +52,22 @@ return [
     */
 
     'resource_dir' => env('JASPER_RESOURCE_DIR', null),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Exec locale
+    |--------------------------------------------------------------------------
+    |
+    | While executing commands to JasperStarter, utf-8 characters may be lost.
+    | PHP locale setting is responsible for this behavior. If this enviroment
+    | is set, given locale will be forced on PHP.
+    |
+    */
+
+    'locale' => env('JASPER_LOCALE', null),
 
 ];
+
 ```
 
 in lumen remember to bootstrap it in `app.php`

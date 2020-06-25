@@ -9,16 +9,19 @@ use JasperPHP\Exceptions\JasperReportNotFoundException;
 
 class JasperPHP
 {
-    protected $executable = null;
-    protected $the_command;
-    protected $redirect_output;
-    protected $background;
-    protected $windows = false;
-    protected $formats = array('pdf', 'rtf', 'xls', 'xlsx', 'docx', 'odt', 'ods', 'pptx', 'csv', 'html', 'xhtml', 'xml', 'jrprint');
-    protected $resource_directory; // Path to report resource dir or jar file
+    public $executable = null;
+    public $locale = null;
+    public $the_command;
+    public $redirect_output;
+    public $background;
+    public $windows = false;
+    public $formats = array('pdf', 'rtf', 'xls', 'xlsx', 'docx', 'odt', 'ods', 'pptx', 'csv', 'html', 'xhtml', 'xml', 'jrprint');
+    public $resource_directory; // Path to report resource dir or jar file
 
     function __construct()
     {
+
+        $this->locale = config('jasper.locale') ? config('jasper.locale') : null;
         $this->executable = config('jasper.executable_path') ? config('jasper.executable_path') : realpath(__DIR__ . "/../JasperStarter/bin/jasperstarter");
         if (!file_exists($this->executable) && !is_executable($this->executable)) {
             throw new \Exception("JasperStarter executable not found, or is not executable (check permissions)", 1);
@@ -295,6 +298,10 @@ class JasperPHP
         $output     = array();
         $return_var = 0;
 
+        if ($this->locale) {
+            setlocale(LC_ALL, $this->locale);
+            putenv('LC_ALL=' . $this->locale);
+        }
         exec($this->the_command, $output, $return_var);
 
         if ($return_var != 0 && isset($output[0]))
